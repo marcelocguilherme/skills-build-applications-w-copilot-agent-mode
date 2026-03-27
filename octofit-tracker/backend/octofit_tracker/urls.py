@@ -29,8 +29,14 @@ router.register(r'leaderboard', LeaderboardViewSet)
 
 @api_view(['GET'])
 def api_root(request, format=None):
-    # Dynamically build the base URL using the request host (works for codespace and localhost)
-    base_url = f"{request.scheme}://{request.get_host()}"
+    # Build the base URL using $CODESPACE_NAME if available, else use request host
+    import os
+    codespace_name = os.environ.get('CODESPACE_NAME')
+    if codespace_name:
+        # Always use https for codespace public URL
+        base_url = f"https://{codespace_name}-8000.app.github.dev"
+    else:
+        base_url = f"{request.scheme}://{request.get_host()}"
     return Response({
         'users': f'{base_url}/api/users/',
         'teams': f'{base_url}/api/teams/',
